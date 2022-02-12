@@ -11,19 +11,16 @@ import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.HashMap;
 
 // This class is going to represent a turing cell. Basically contious information of
 // the concentration of chemicals A,B,C. To be used for continuous CA
 public class TuringCell {
 
-    //Declaring chemical fields
-    private float concentrationA;
-    private float concentrationB;
-    private float concentrationC;
-    // Declaring reaction parameters
-    private float alpha;
-    private float beta;
-    private float gamma;
+    // Declaring chemical concentration hash map
+    private HashMap<String, Float> concentrations = new HashMap<>();
+    // Declaring reaction parameters hash map
+    private HashMap<String, Float> parameters = new HashMap<>();
     //Initializing random generator
     private Random randomGenerator = new Random();
     // Initialzing limits for our constrain method
@@ -34,14 +31,14 @@ public class TuringCell {
     public TuringCell(){
 
         // Initializing chemicals with random floats from 0 to 0.8
-        this.concentrationA = randomGenerator.nextFloat();
-        this.concentrationB = randomGenerator.nextFloat();
-        this.concentrationC = randomGenerator.nextFloat();
+        this.concentrations.put("concentrationA", randomGenerator.nextFloat());
+        this.concentrations.put("concentrationB", randomGenerator.nextFloat());
+        this.concentrations.put("concentrationC", randomGenerator.nextFloat());
 
         // Reaction parameters set to 1 by default
-        this.alpha = 1;
-        this.beta = 1;
-        this.gamma = 1;
+        this.parameters.put("alpha", 1f);
+        this.parameters.put("beta", 1f);
+        this.parameters.put("gamma", 1f);
         
     }
 
@@ -58,30 +55,30 @@ public class TuringCell {
             b = this.limit(b);
             c = this.limit(c);
 
-            // Initialize chemicals with given parameters
-            this.concentrationA = a;
-            this.concentrationB = b;
-            this.concentrationC = c;
+            this.concentrations.put("concentrationA", a);
+            this.concentrations.put("concentrationB", b);
+            this.concentrations.put("concentrationC", c);
         }
         else{
 
             // Initializing chemicals with given parameters
-            this.concentrationA = a;
-            this.concentrationB = b;
-            this.concentrationC = c;
+            this.concentrations.put("concentrationA", a);
+            this.concentrations.put("concentrationB", b);
+            this.concentrations.put("concentrationC", c);
         }
 
         // Reaction parameters set to 1 by default
-        this.alpha = 1;
-        this.beta = 1;
-        this.gamma = 1;
+        this.parameters.put("alpha", 1f);
+        this.parameters.put("beta", 1f);
+        this.parameters.put("gamma", 1f);
     }
 
     // This method resets all the concentrations to random floats from 0 to 0.8
     public void reset(){
-        this.concentrationA = randomGenerator.nextFloat();
-        this.concentrationB = randomGenerator.nextFloat();
-        this.concentrationC = randomGenerator.nextFloat();
+    
+        this.concentrations.put("concentrationA", randomGenerator.nextFloat());
+        this.concentrations.put("concentrationB", randomGenerator.nextFloat());
+        this.concentrations.put("concentrationC", randomGenerator.nextFloat());
     }
 
     // This method returns a constrained value if it is not between 0 and 0.8.
@@ -103,26 +100,16 @@ public class TuringCell {
         ArrayList<Float> concentrations = new ArrayList<Float>();
 
         // Assigning concentrations to ArrayList indices
-        concentrations.add(this.concentrationA);
-        concentrations.add(this.concentrationB);
-        concentrations.add(this.concentrationC);
+        concentrations.add(this.concentrations.get("concentrationA"));
+        concentrations.add(this.concentrations.get("concentrationB"));
+        concentrations.add(this.concentrations.get("concentrationC"));
 
         return concentrations;
     }
 
-    // This method returns alpha
-    public float getAlpha(){
-        return this.alpha;
-    }
-    
-    // This method returns beta
-    public float getBeta(){
-        return this.beta;
-    }
-
-    // This method returns gamma
-    public float getGamma(){
-        return this.gamma;
+    // Method sets paramets
+    public void setParameters(HashMap<String, Float> newParameters) { 
+        this.parameters = newParameters; 
     }
 
     // This method sets the concentrations of the chemicals
@@ -137,35 +124,22 @@ public class TuringCell {
             b = this.limit(b);
             c = this.limit(c);
 
-            // Setting concentrations to given parameters
-            this.concentrationA = a;
-            this.concentrationB = b;
-            this.concentrationC = c;
-        }
+            this.concentrations.put("concentrationA", a);
+            this.concentrations.put("concentrationB", b);
+            this.concentrations.put("concentrationC", c);
+                    }
         else{
 
             // Setting concentrations to given parameters 
-            this.concentrationA = a;
-            this.concentrationB = b;
-            this.concentrationC = c;
+            this.concentrations.put("concentrationA", a);
+            this.concentrations.put("concentrationB", b);
+            this.concentrations.put("concentrationC", c);
         }
 
     }
 
-    // This method sets the alpha parameter
-    public void setAlpha(float a){
-        this.alpha = a;
-    }
-
-    // This method sets the beta parameter
-    public void setBeta(float b){
-        this.beta = b;
-    }
-
-    // This method sets the gamma parameter
-    public void setGamma(float g){
-        this.gamma = g;
-    }
+    // Method returns the parameters hash map
+    public HashMap<String, Float> getParameters() { return this.parameters; }
 
     // This method draws the cell. The color of the cell is set
     // Using the HSB model which is why concentrations must be floats between 0 and 0.8
@@ -178,7 +152,7 @@ public class TuringCell {
 
         // Setting the color in accordance to concentration A
         // Using HSB model of color
-        Color cellColor = Color.getHSBColor(1.0f, 0.9f, this.concentrationA);
+        Color cellColor = Color.getHSBColor(1.0f, 0.9f, this.concentrations.get("concentrationA"));
         g.setColor(cellColor);
 
         // Fill oval object at x,y with current collor 
@@ -238,10 +212,14 @@ public class TuringCell {
         float B = concentrations[1];
         float C = concentrations[2];
 
+        float alpha = this.parameters.get("alpha");
+        float beta = this.parameters.get("beta");
+        float gamma = this.parameters.get("gamma");
+
         // Calculating new concentrations 
-        float newA = A + A * (this.alpha * B - this.gamma * C);
-        float newB = B + B * (this.beta * C - this.alpha * A);
-        float newC = C + C * (this.gamma * A - this.beta * B);
+        float newA = A + A * (alpha * B - gamma * C);
+        float newB = B + B * (beta * C - alpha * A);
+        float newC = C + C * (gamma * A - beta * B);
 
         // Allocating array with new concentrations
         float[] newConcentrations = {newA, newB, newC};
@@ -256,16 +234,16 @@ public class TuringCell {
         float[] newConcentration = this.BZ(neighbors);
 
         // Assign calculated concentrations to cell's concentration
-        this.concentrationA = newConcentration[0];
-        this.concentrationB = newConcentration[1];
-        this.concentrationC = newConcentration[2];
+        this.concentrations.replace("concentrationA", newConcentration[0]);
+        this.concentrations.replace("concentrationB",newConcentration[1]);
+        this.concentrations.replace("concentrationC",newConcentration[2]);
     }
 
     public String toString(){
 
         // The cell will be represented in string format as the concentration of chemical A
         String output = "%s";
-        output = String.format(output, this.concentrationA);
+        output = String.format(output, this.concentrations.get("concentrationA"));
 
         return output;
     }
