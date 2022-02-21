@@ -152,7 +152,7 @@ public class TuringCell {
 
         // Setting the color in accordance to concentration A
         // Using HSB model of color
-        Color cellColor = Color.getHSBColor(1.0f, 0.9f, this.concentrations.get("concentrationA"));
+        Color cellColor = Color.getHSBColor(0.7f, 0.9f, this.concentrations.get("concentrationA"));
         g.setColor(cellColor);
 
         // Fill oval object at x,y with current collor 
