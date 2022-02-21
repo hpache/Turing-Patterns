@@ -17,5 +17,7 @@ public class Simulation {
                 Thread.currentThread().interrupt();
             }
         }
+
+        System.out.println("Finished!");
     }
 }

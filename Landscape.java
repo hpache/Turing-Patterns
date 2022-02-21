@@ -7,6 +7,7 @@
  */
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.awt.Graphics;
 
 // This class represents a landscape and hold multiple cell objects in a uniform grid
@@ -59,11 +60,17 @@ public class Landscape {
 
                 // Creating new cell object
                 TuringCell cellElement = new TuringCell();
-                
-                // Giving cellElement given reaction parameters
-                cellElement.setAlpha(alpha);
-                cellElement.setBeta(beta);
-                cellElement.setGamma(gamma);
+
+                // Creating parameters HashMap
+                HashMap<String, Float> params = new HashMap<>();
+
+                // Assigning parameters
+                params.put("alpha", alpha);
+                params.put("beta", beta);
+                params.put("gamma", gamma);
+
+                // Setting the cell's parameters 
+                cellElement.setParameters(params);
 
                 // ijth element of grid is assigned a cell object
                 this.grid[i][j] = cellElement;
@@ -193,17 +200,18 @@ public class Landscape {
                 ArrayList<Float> originalConcentrations = originalCell.getConcentrations();
 
                 // Unpack concentrations to make the code easier to read
-                float alpha = originalConcentrations.get(0);
-                float beta = originalConcentrations.get(1);
-                float gamma = originalConcentrations.get(2);
+                float A = originalConcentrations.get(0);
+                float B = originalConcentrations.get(1);
+                float C = originalConcentrations.get(2);
 
                 // Set the cells status equal to the one in the ijth position of the original grid
-                tempCell.setConcentrations(alpha,beta,gamma);
+                tempCell.setConcentrations(A,B,C);
+
+                // Getting the original cell's parameters
+                HashMap<String, Float> originalParam =  originalCell.getParameters();
 
                 // Giving the temporary cell the same reaction parameters as the original cell
-                tempCell.setAlpha( originalCell.getAlpha() );
-                tempCell.setBeta( originalCell.getBeta() );
-                tempCell.setGamma( originalCell.getGamma() );
+                tempCell.setParameters(originalParam);
 
                 // Assigning tempCell to the ijth element in the clone array
                 gridClone[i][j] = tempCell;
