@@ -46,6 +46,8 @@ public class TuringCell {
     // Values must be floats between 0 and 0.8
     public TuringCell(float a, float b, float c){
 
+        
+
         // If one of the concentrations is greater than 0.8 or less than 0 then
         // concentrations will be constrained!
         if ((a > 1 || b > 1 || c > 1) || (a < 0 || b < 0 || c < 0)){
@@ -114,7 +116,11 @@ public class TuringCell {
 
     // This method sets the concentrations of the chemicals
     // Must be a float with value between 0 and 0.8
-    public void setConcentrations(float a, float b, float c){
+    public void setConcentrations(HashMap<String, Float> newConcentrations){
+
+        Float a = newConcentrations.get("a");
+        Float b = newConcentrations.get("b");
+        Float c = newConcentrations.get("c");
 
         // If one of the concentrations is not between 0 or 0.8 then constrain it
         if ((a > 1 || b > 1 || c > 1) || (a < 0 || b < 0 || c < 0)){
@@ -262,7 +268,11 @@ public class TuringCell {
 
         // Setting cell1 concentrations with invalid values to confirm that the
         // constaining mechanims works. Output should be (1, 0, 1)
-        cell1.setConcentrations(2f, -1f, 1.1f);
+        HashMap<String, Float> newConcentrations = new HashMap<>();
+        newConcentrations.put("a", 2f);
+        newConcentrations.put("b", -1f);
+        newConcentrations.put("c", 1.1f);
+        cell1.setConcentrations(newConcentrations);
         System.out.println(cell1);
 
         // Cell with given concentrations all valid values

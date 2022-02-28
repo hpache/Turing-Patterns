@@ -101,7 +101,10 @@ public class TestCell {
 
     // This method sets the concentrations of the chemicals
     // Must be a float with value between 0 and 0.8
-    public void setConcentrations(float a, float b){
+    public void setConcentrations(HashMap<String, Float> newConcentrations){
+
+        Float a = newConcentrations.get("a");
+        Float b = newConcentrations.get("b");
 
         // If one of the concentrations is not between 0 or 0.8 then constrain it
         if ((a > 1 || b > 1) || (a < 0 || b < 0)){
