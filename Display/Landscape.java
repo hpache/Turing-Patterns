@@ -5,9 +5,13 @@
  * is putting our cells in a grid in order to visualize them
  */
 
+ package Display;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.awt.Graphics;
+import Cells.*;
+import Models.*;
 
 public class Landscape {
 
@@ -34,11 +38,53 @@ public class Landscape {
         this.generateGrid();
     }
 
+    
+    // Constructor with custom rows, columns, model, and concentrations or parameters
+    public Landscape(int rows, int cols, Model model, String type, HashMap<String, Float> input){
+
+        // Initializing numRows field
+        this.numRows = rows;
+        // Initializing numCols field
+        this.numCols = cols;
+        // Initializing model field
+        this.model = model;
+        
+        // Generating a grid with given input
+        this.generateGrid(type, input);
+    }
+
+    
+    // Constructor with custom rows, columns, model, concentrations, and parameters
+    public Landscape(int rows, int cols, Model model, HashMap<String,Float> parameters, HashMap<String,Float> concentrations){
+
+        // Initializing numRows field
+        this.numRows = rows;
+        // Initializing numCols field
+        this.numCols = cols;
+        // Initializing model field
+        this.model = model;
+
+        // Generating a grid with specific concentrations and parameters
+        this.generateGrid(parameters, concentrations);
+    }
+
     // Method generates a grid from the model interface
     private void generateGrid(){
         
         // Initialize the grid field with the output grid
         this.grid = this.model.genGrid(this.numRows, this.numCols);
+    }
+
+    // Method generates a grid from the model interface with a given input and size
+    private void generateGrid(String type, HashMap<String, Float> input){
+
+        this.grid = this.model.genGrid(this.numRows, this.numCols, input, type);
+    }
+
+    // Method generates a grid from the model interface with given concentrations and parameters
+    private void generateGrid(HashMap<String, Float> parameters, HashMap<String, Float> concentrations){
+
+        this.grid = this.model.genGrid(this.numRows, this.numCols, parameters, concentrations);
     }
 
     // Method generates a clone grid

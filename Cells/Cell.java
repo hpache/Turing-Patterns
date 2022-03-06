@@ -6,6 +6,8 @@
  * their respective models
  */
 
+ package Cells;
+
 import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Random;
