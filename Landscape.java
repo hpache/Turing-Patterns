@@ -1,132 +1,100 @@
 /**
  * Henry Pacheco Cachon
- * Project 2 Extension
- * Created 02/26/2021
- * This file is a modified version of the original Landscape class
- * I modified it so that it can work properly with the TuringCell calss
+ * Created 5 March 2022
+ * This file holds the Landscape class, all this is responsible for
+ * is putting our cells in a grid in order to visualize them
  */
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.awt.Graphics;
 
-// This class represents a landscape and hold multiple cell objects in a uniform grid
 public class Landscape {
 
-    // Declaring 2d array that will hold our cells
-    private TuringCell[][] grid;
-    // Declaring column and row fields
-    private int numberRows;
-    private int numberColumns;
+    // Field for grid of cells
+    private Cell[][] grid;
+    // Field for number of columns
+    private int numCols;
+    // Field for number of rows
+    private int numRows;
+    // Field for a model interface
+    private Model model;
 
-    // Constructor, allocates a 2d array with given row and column values then it fills
-    // the 2d array with cell objects with default reaction parameters
-    public Landscape(int rows, int cols){
+    // Constructor with custom rows, columns, and model
+    public Landscape(int rows, int cols, Model model){
 
-        // Initializing row and column fields
-        this.numberRows = rows;
-        this.numberColumns = cols;
+        // Initializing numRows field
+        this.numRows = rows;
+        // Initializing numCols field
+        this.numCols = cols;
+        // Initializing model field
+        this.model = model;
 
-        // Allocating 2d array with given dimensions
-        this.grid = new TuringCell[this.numberRows][this.numberColumns];
-
-        // Fill our 2d array with cells
-        for (int i = 0; i < numberRows; i++){
-            for (int j = 0; j < numberColumns; j++){
-
-                // Create new cell object 
-                TuringCell cellElement = new TuringCell();
-
-                // ijth element of grid 2d array is assigned a cell object
-                this.grid[i][j] = cellElement;
-            }
-        }
+        // Running the generate grid method
+        this.generateGrid();
     }
 
-    // Constructor allocates a 2d array with given row and column dimensions and then
-    // It fills the grid with cell objects with given reaction parameters
-    public Landscape(int rows, int cols, float alpha, float beta, float gamma){
-
-        // Initializing row and column fields
-        this.numberRows = rows;
-        this.numberColumns = cols;
+    // Method generates a grid from the model interface
+    private void generateGrid(){
         
-        // Allocating 2d array with given dimensions
-        this.grid = new TuringCell[this.numberRows][this.numberColumns];
-
-        // Fills grid with cells
-        for (int i = 0; i < numberRows; i++){
-            for (int j = 0; j < numberColumns; j++){
-
-                // Creating new cell object
-                TuringCell cellElement = new TuringCell();
-
-                // Creating parameters HashMap
-                HashMap<String, Float> params = new HashMap<>();
-
-                // Assigning parameters
-                params.put("alpha", alpha);
-                params.put("beta", beta);
-                params.put("gamma", gamma);
-
-                // Setting the cell's parameters 
-                cellElement.setParameters(params);
-
-                // ijth element of grid is assigned a cell object
-                this.grid[i][j] = cellElement;
-            }
-        }
+        // Initialize the grid field with the output grid
+        this.grid = this.model.genGrid(this.numRows, this.numCols);
     }
 
-    // Method resets all the cells in our grid
+    // Method generates a clone grid
+    private Cell[][] generateClone(){
+
+        return this.model.genGrid(this.numRows, this.numCols);
+    }
+
+
+    // Method resets all the cells in the grid
     public void reset(){
 
-        // Iterating over the elements of the grid array
-        for (int i = 0; i < this.numberRows; i++){
-            for (int j = 0; j < this.numberColumns; j++){
+        for (int row = 0; row < this.grid.length; row++) {
+            for (int col = 0; col < this.grid.length; col++) {
+                
+                // Getting ijth cell
+                Cell currentCell = this.grid[row][col];
 
-                // picking a cell element at the ijth index
-                TuringCell cellElement = this.grid[i][j];
-
-                // Resetting that element
-                cellElement.reset();
+                currentCell.reset();
             }
         }
     }
 
-    // Method returns the number of rows
-    public int getRows(){
-        return this.numberRows;
-    }
+
+    // Method returns the grid of cells
+    public Cell[][] getGrid() {return this.grid;}
+
 
     // Method returns the number of columns
-    public int getCols(){
-        return this.numberColumns;
-    }
-    
-    // Method returns the cell at position [row][col]
-    public TuringCell getCell(int row, int col){
-        return this.grid[row][col];
-    }
+    public int getColsNum() {return this.numCols;}
 
-    // This method scans 2d array elements in a given row
-    // starting from the initial column and ending at the final column and outputs an arraylist
-    // containing the scanned elements. Implements warping since this method
-    // is exclusively for the getNeighbors method
-    private ArrayList<TuringCell> scanRow(int row, int initialColumn, int finalColumn){
+
+    // Method returns the number of rows
+    public int getRowsNum() {return this.numRows;}
+
+
+    // Method returns cell at specified location
+    public Cell getCell(int row, int col) { return this.grid[row][col];}
+
+
+    // Auxiliary method scans 2d array elements in a given row
+    // Implements warping
+    private ArrayList<Cell> scanRow(int row, int initialColumn, int finalColumn){
 
         // Initializing scanned arraylist
-        ArrayList<TuringCell> scannedElements = new ArrayList<TuringCell>();
+        ArrayList<Cell> scannedElements = new ArrayList<Cell>();
 
         // Iterate over the columns at [row] starting from initialColumn to finalColumn
         for (int j = initialColumn; j <= finalColumn; j++){
 
             // Calculating warped indices (Toroidal warping)
-            int warpedI = (row + this.numberRows) % this.numberRows;
-            int warpedJ = (j + this.numberColumns) % this.numberColumns;
+            int warpedI = (row + this.numRows) % this.numRows;
+            int warpedJ = (j + this.numCols) % this.numCols;
 
             // Getting cellElement at warped indices
-            TuringCell cellElement = this.grid[warpedI][warpedJ];
+            Cell cellElement = this.grid[warpedI][warpedJ];
 
             // Assigning it to the scannedElements ArrayList
             scannedElements.add(cellElement);
@@ -134,13 +102,11 @@ public class Landscape {
         return scannedElements;
     }
 
-    // Method returns an array list of the neighbors of the cell at the [row][col] position.
-    // This method will use the Moore neighborhood in preparation for my extension :D
-    // Also in preparation for my extension, I will treat the grid as a warped grid
-    public ArrayList<TuringCell> getNeighbors(int row, int col){
+    // Method gets neighbors of a given cell
+    public ArrayList<Cell> getNeighbors(int row, int col){
         
         // Initializing neighbors arraylist
-        ArrayList<TuringCell> neighbors = new ArrayList<TuringCell>();
+        ArrayList<Cell> neighbors = new ArrayList<Cell>();
 
         // Getting the rows and columns that contain the neighbors
         int topRow = row - 1;
@@ -149,11 +115,11 @@ public class Landscape {
         int finalColumn = col + 1;
 
         // Getting neighbors in the top row
-        ArrayList<TuringCell> topNeighbors = this.scanRow(topRow, initialColumn, finalColumn);
+        ArrayList<Cell> topNeighbors = this.scanRow(topRow, initialColumn, finalColumn);
         // Getting neighbors in the same row
-        ArrayList<TuringCell> sameRowNeighbors = this.scanRow(row, initialColumn, finalColumn);
+        ArrayList<Cell> sameRowNeighbors = this.scanRow(row, initialColumn, finalColumn);
         //Getting neighbors in the lower row
-        ArrayList<TuringCell> lowNeighbors = this.scanRow(lowerRow, initialColumn, finalColumn);
+        ArrayList<Cell> lowNeighbors = this.scanRow(lowerRow, initialColumn, finalColumn);
 
         // Adding all ArrayLists the neighbors ArrayList
         neighbors.addAll(topNeighbors);
@@ -163,15 +129,15 @@ public class Landscape {
         return neighbors;
     }
 
-    // This method loops through all of the cells in our grid and draws them
+    // Method calls on the draw method for all cells in the grid
     public void draw( Graphics g, int gridScale){
 
         // Iterating over all the grid elements
-        for (int i = 0; i < this.numberRows; i++){
-            for (int j = 0; j < this.numberColumns; j++){
+        for (int i = 0; i < this.numRows; i++){
+            for (int j = 0; j < this.numCols; j++){
 
                 // Picking out our ijth cell
-                TuringCell currentCell = this.grid[i][j];
+                Cell currentCell = this.grid[i][j];
                 
                 // Drawing our ijth cell
                 currentCell.draw(g, i * gridScale, j * gridScale, gridScale);
@@ -179,45 +145,34 @@ public class Landscape {
         }
     }
 
-    // This method advances the game by running the update method on each cell in our grid
+    // Method advances the model one time step
     public void advance(){
 
         // Make a clone of the grid array so we can work on it
-        TuringCell[][] gridClone = new TuringCell[this.numberRows][this.numberColumns];
+        Cell[][] gridClone = this.generateClone();
 
         // Iterate over the original grid in order to copy its ijth element
         // Once we do that, we get the ijth's cell neighbor list and update it appropriately
         // Once we update the temporary cell, we assign it to the clone array 
-        for (int i = 0; i < this.numberRows; i++){
-            for (int j = 0; j < this.numberColumns; j++){
+        for (int i = 0; i < this.numRows; i++){
+            for (int j = 0; j < this.numCols; j++){
 
                 // Create a new cell object
-                TuringCell tempCell = new TuringCell();
+                Cell tempCell = gridClone[i][j];
                 // Get ijth cell from the original grid
-                TuringCell originalCell = this.grid[i][j];
-
-                // Get original concentrations
-                ArrayList<Float> originalConcentrations = originalCell.getConcentrations();
-
-                // Unpack concentrations to make the code easier to read
-                float A = originalConcentrations.get(0);
-                float B = originalConcentrations.get(1);
-                float C = originalConcentrations.get(2);
+                Cell originalCell = this.grid[i][j];
 
                 // Set the cells status equal to the one in the ijth position of the original grid
-                tempCell.setConcentrations(A,B,C);
-
-                // Getting the original cell's parameters
-                HashMap<String, Float> originalParam =  originalCell.getParameters();
+                tempCell.setConcentrations(originalCell.getConcentrations());
 
                 // Giving the temporary cell the same reaction parameters as the original cell
-                tempCell.setParameters(originalParam);
+                tempCell.setParameters(originalCell.getParameters());
 
                 // Assigning tempCell to the ijth element in the clone array
                 gridClone[i][j] = tempCell;
 
                 // Get the neighbors of the ijth cell in the original grid
-                ArrayList<TuringCell> neighbors = this.getNeighbors(i, j);
+                ArrayList<Cell> neighbors = this.getNeighbors(i, j);
 
                 // Update the ijth tempCell with the neighbors
                 tempCell.updateState(neighbors); 
@@ -228,6 +183,7 @@ public class Landscape {
         this.grid = gridClone;
     }
 
+
     // Method formats our grid object in a nice string
     public String toString(){
 
@@ -235,8 +191,8 @@ public class Landscape {
         String output = "";
 
         // Iterating over 2d array
-        for (int i = 0; i < this.numberRows; i++){
-            for (int j = 0; j < this.numberColumns; j++){
+        for (int i = 0; i < this.numRows; i++){
+            for (int j = 0; j < this.numCols; j++){
                 output += this.grid[i][j] + " ";
             }
             output += "\n";
@@ -245,30 +201,31 @@ public class Landscape {
         return output;
     }
 
-    // Unit Test!!
     public static void main(String[] args) {
         
-        Landscape grid1 = new Landscape(5, 5);
-
-        // toString method won't look nice because of the tuples
+        // Creating 5 x 5 grid
+        Landscape grid1 = new Landscape(15, 15, new BZModel());
+        // Printing out concentrations of chemical A
+        System.out.println("\nInitial time step");
         System.out.println(grid1);
 
-        // Picking inidivual cell to focus on
-        TuringCell cell1 = grid1.getCell(2, 3);
-        System.out.println(cell1);
+        // Picking inidividual cell to pick on
+        Cell cell1 = grid1.getCell(1, 1);
+        // Checking concentration
+        System.out.println("Concentration of cell at (1,1): " + cell1);
+        // Checking class type
+        System.out.println("Cell at (1,1) is of class: " + cell1.getClass());
 
-        // Getting neighbors of cell1
-        ArrayList<TuringCell> neighbors = grid1.getNeighbors(2, 3);
-        System.out.println(neighbors);
-
-        // Advance the grid
+        // Advance the grid one time step
         grid1.advance();
-        
-        // Print out cell1 now
-        cell1 = grid1.getCell(2, 3);
-        System.out.println(cell1);
+        System.out.println("\nAdvance one time step");
 
-        // See the current landscape
+        // Print out the concentrations of chemical A after one step
+        System.out.println(grid1);
+        // Print the concentration of cell at (1,1) after one step
+        System.out.println("Concentration of cell at (1,1): " + cell1);
+
+        // Visualize updated grid
         LandscapeDisplay display1 = new LandscapeDisplay(grid1, 8);
     }
 }
