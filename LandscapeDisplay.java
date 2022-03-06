@@ -52,8 +52,8 @@ public class LandscapeDisplay
 
         // create a panel in which to display the Landscape
         // put a buffer of two rows around the display grid
-        this.canvas = new LandscapePanel( (int) (this.scape.getCols()+4) * this.gridScale,
-                                          (int) (this.scape.getRows()+4) * this.gridScale);
+        this.canvas = new LandscapePanel( (int) (this.scape.getColsNum()+4) * this.gridScale,
+                                          (int) (this.scape.getRowsNum()+4) * this.gridScale);
 
         // add the panel to the window, layout, and display
         this.win.add(this.canvas, BorderLayout.CENTER);
@@ -135,7 +135,7 @@ public class LandscapeDisplay
     }
 
     public static void main(String[] args) throws InterruptedException {
-        Landscape scape = new Landscape(100,100);
+        Landscape scape = new Landscape(100,100, new BZModel());
 
         LandscapeDisplay display = new LandscapeDisplay(scape, 8);
     }
