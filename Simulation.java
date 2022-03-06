@@ -3,7 +3,7 @@ public class Simulation {
     public static void main(String[] args) {
         
         // Initializing grid and display
-        Landscape grid = new Landscape(200, 200);        
+        Landscape grid = new Landscape(200, 200, new BZModel());        
         LandscapeDisplay display1 = new LandscapeDisplay(grid, 4);
 
         // Simulating 200 iterations, a pattern should appear at the 20th iteration
