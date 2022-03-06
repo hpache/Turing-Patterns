@@ -1,77 +1,72 @@
 /**
  * Henry Pacheco Cachon
- * Created 5 March 2022
- * Activator-Inhibitor cell, this cell follows the 
- * activator-inhibitor model
+ * Created: 5 March 2022
+ * File is a BZ cell which is a child of the Cell class
  */
 
- import java.util.ArrayList;
+ package Cells;
+
  import java.util.HashMap;
- import java.awt.Color;
+ import java.util.ArrayList;
  import java.awt.Graphics;
+ import java.awt.Color;
 
-public class AICell extends Cell{
+public class BZCell extends Cell {
     
-    // Defualt constructor sets the concentrations of A and B to random floats
-    // Sets the parameters to 1
-    public AICell(){
+    // Default constructor don't do anything 
+    public BZCell(){
         super();
-
-        // Setting concentration hashmap
-        HashMap<String, Float> aiConcentrations = new HashMap<>();
-        // Setting parameter hashmap
-        HashMap<String, Float> aiParameters = new HashMap<>();
-
-        // Setting concentrations for ai model 
-        aiConcentrations.put("a", this.randGen.nextFloat());
-        aiConcentrations.put("b", this.randGen.nextFloat());
-
-        // Setting model parameters
-        aiParameters.put("r_a",0.001f);
-        aiParameters.put("r_b",0.15f);
-        aiParameters.put("b_a",0.05f);
-        aiParameters.put("b_b",0.05f);
-        aiParameters.put("s",0.025f);
-
-        // Setting parameters and concentrations fields
-        this.setConcentrations(aiConcentrations);
-        this.setParameters(aiParameters);
-
     }
 
     // Constructor with custom concentrations
-    public AICell(HashMap<String, Float> concentrations){
+    public BZCell(HashMap<String, Float> concentrations){
+
+        // Initialize parent class
         super();
+        
+        // Create model concentrations hashmap 
+        HashMap<String, Float> modelConcentrations = new HashMap<>();
+        // Create model parameters hashmap 
+        HashMap<String, Float> modelParameters = new HashMap<>();
 
-        // Getting concentrations from input
-        Float a = concentrations.get("a");
-        Float b = concentrations.get("b");
-        // Limiting concentrations to within 0 and 0.8 
-        a = this.limit(a);
-        b = this.limit(b);
+        // Getting input parameters
+        float a = concentrations.get("a");
+        float b = concentrations.get("b");
+        float c = concentrations.get("c");
 
-        // Creating model concentrations hashmap
-        HashMap<String, Float> aiConcentrations = new HashMap<>();
-        // Setting parameter hashmap
-        HashMap<String, Float> aiParameters = new HashMap<>();
+        // If one of the concentrations is greater than 0.8 or less than 0 then
+        // concentrations will be constrained!
+        if ((a > 1 || b > 1 || c > 1) || (a < 0 || b < 0 || c < 0)){
+            
+            // constrain values that are not between 0 and 1
+            a = this.limit(a);
+            b = this.limit(b);
+            c = this.limit(c);
 
-        // Setting concentrations for ai model 
-        aiConcentrations.put("a", a);
-        aiConcentrations.put("b", b);
+            modelConcentrations.put("a", a);
+            modelConcentrations.put("b", b);
+            modelConcentrations.put("c", c);
+        }
+        else{
 
+            // Initializing chemicals with given parameters
+            modelConcentrations.put("a", a);
+            modelConcentrations.put("b", b);
+            modelConcentrations.put("c", c);
+        }
+
+        // Reaction parameters set to 1 by default
+        modelParameters.put("alpha", 1f);
+        modelParameters.put("beta", 1f);
+        modelParameters.put("gamma", 1f);
+
+        // Setting model concentrations
+        this.setConcentrations(modelConcentrations);
         // Setting model parameters
-        aiParameters.put("r_a",0.001f);
-        aiParameters.put("r_b",0.15f);
-        aiParameters.put("b_a",0.05f);
-        aiParameters.put("b_b",0.05f);
-        aiParameters.put("s",0.025f);
-
-        // Updating parameters and concentrations field
-        this.setParameters(aiParameters);
-        this.setConcentrations(aiConcentrations);
+        this.setParameters(modelParameters);
     }
 
-    // Method resets the models concentrations only
+    // Method resets the models concentrations only!
     public void reset(){
 
         // Create new concentrations hashmap
@@ -79,54 +74,60 @@ public class AICell extends Cell{
 
         resetConcentrations.put("a", this.randGen.nextFloat());
         resetConcentrations.put("b", this.randGen.nextFloat());
+        resetConcentrations.put("c", this.randGen.nextFloat());
 
         this.setConcentrations(resetConcentrations);
+
     }
 
-    // Method calculates the cells new concentrations
-    public float[] activatorInhibitorModel(ArrayList<Cell> neighbors){
-        // Finds average concentrations by calling on the average method
+
+    // Method calculates the cells new concentrations based on 
+    // the concentrations of its neighboring cells
+    private float[] BZ(ArrayList<Cell> neighbors){
+
         float[] concentrations = this.average(neighbors);
 
         // Getting concentrations from the output of the average method
         float A = concentrations[0];
         float B = concentrations[1];
+        float C = concentrations[2];
 
         HashMap<String, Float> parameters = this.getParameters();
 
-        float r_a = parameters.get("r_a");
-        float r_b = parameters.get("r_b");
-        float b_a = parameters.get("b_a");
-        float b_b = parameters.get("b_b");
-        float s = parameters.get("s");
+        float alpha = parameters.get("alpha");
+        float beta = parameters.get("beta");
+        float gamma = parameters.get("gamma");
 
         // Calculating new concentrations 
-        float newA = A - r_a * A + s * ((A * A)/B + b_a);
-        float newB = B - r_b * B + s * A * A + b_b;
+        float newA = A + A * (alpha * B - gamma * C);
+        float newB = B + B * (beta * C - alpha * A);
+        float newC = C + C * (gamma * A - beta * B);
 
         // Allocating array with new concentrations
-        float[] newConcentrations = {newA, newB};
+        float[] newConcentrations = {newA, newB, newC};
 
         return newConcentrations;
     }
 
-
+    
     // Method updates the state of the current cell
     public void updateState(ArrayList<Cell> neighbors){
 
-        float[] newConcentrations = this.activatorInhibitorModel(neighbors);
+        // Getting the new concentrations
+        float[] newConcentrations = this.BZ(neighbors);
 
-        // Creating hashmap for new concentrations
+        // Creating a hashmap for the updated concentrations
         HashMap<String, Float> updateConcentrations = new HashMap<>();
-
         updateConcentrations.put("a", newConcentrations[0]);
         updateConcentrations.put("b", newConcentrations[1]);
+        updateConcentrations.put("c", newConcentrations[2]);
 
+        // Updating the concentrations hashmap field
         this.setConcentrations(updateConcentrations);
     }
 
-
-    // Draw method for AICell
+    
+    // Draw method for BZCell
     public void draw(Graphics g, int x, int y, int scale){
 
         // Draw an oval representing a cell at position x,y, scaled by scale
@@ -141,6 +142,8 @@ public class AICell extends Cell{
         g.fillRect(x, y, scale, scale);
     }
 
+
+
     public static void main(String[] args) {
 
         // Creating input concentrations hashmap
@@ -149,9 +152,10 @@ public class AICell extends Cell{
         // Putting in values for input concentrations
         concentrations.put("a", 0.1f);
         concentrations.put("b", 0.2f);
+        concentrations.put("c", 0.1f);
 
-        // Creating a test AICell object
-        AICell test = new AICell(concentrations);
+        // Creating a test BZCell object
+        BZCell test = new BZCell(concentrations);
 
         // Outputting the concentrations
         System.out.println(test.getConcentrations());
@@ -163,9 +167,9 @@ public class AICell extends Cell{
         System.out.println(test.getConcentrations());
 
         // Creating three BZ cells
-        AICell cellA = new AICell();
-        AICell cellB = new AICell();
-        AICell cellC = new AICell();
+        BZCell cellA = new BZCell();
+        BZCell cellB = new BZCell();
+        BZCell cellC = new BZCell();
 
         // Creating an array containing all the cells
         ArrayList<Cell> cells = new ArrayList<>();
@@ -195,14 +199,5 @@ public class AICell extends Cell{
         // Printing the new state of the cell
         System.out.println(test);
 
-        AICell[] aicell_arr = {cellA, cellB, cellC};
-        Cell[] cell_arr = aicell_arr;
-
-        for (int i = 0; i < cell_arr.length; i++) {
-            System.out.println(cell_arr[i]);
-        }
-
-
     }
-
 }

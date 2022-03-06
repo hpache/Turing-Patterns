@@ -8,6 +8,8 @@
   Landscape class needs a draw method.
 */
 
+package Display;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -23,6 +25,8 @@ import javax.imageio.ImageIO;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+
+import Models.*;
 
 /**
  * Displays a Landscape graphically using Swing.  The Landscape
