@@ -77,6 +77,16 @@ public class Simulation {
             Simulation defaultCase = new Simulation(new BZModel());
             System.out.println(defaultCase);
         }
+
+        if (args.length == 1){
+            Float gamma = Float.parseFloat(args[0]);
+
+            HashMap<String, Float> parameters = new HashMap<>();
+            parameters.put("gamma", gamma);
+
+            Simulation parametersCase = new Simulation(new AIModel(), parameters);
+            System.out.println(parametersCase);
+        }
         
         if (args.length == 3){
 

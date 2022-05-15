@@ -29,11 +29,7 @@ public class AICell extends Cell{
         aiConcentrations.put("b", this.randGen.nextFloat());
 
         // Setting model parameters
-        aiParameters.put("r_a",0.001f);
-        aiParameters.put("r_b",0.15f);
-        aiParameters.put("b_a",0.05f);
-        aiParameters.put("b_b",0.05f);
-        aiParameters.put("s",0.025f);
+        aiParameters.put("gamma", 1.0f);
 
         // Setting parameters and concentrations fields
         this.setConcentrations(aiConcentrations);
@@ -62,11 +58,7 @@ public class AICell extends Cell{
         aiConcentrations.put("b", b);
 
         // Setting model parameters
-        aiParameters.put("r_a",0.001f);
-        aiParameters.put("r_b",0.15f);
-        aiParameters.put("b_a",0.05f);
-        aiParameters.put("b_b",0.05f);
-        aiParameters.put("s",0.025f);
+        aiParameters.put("gamma",1.0f);
 
         // Updating parameters and concentrations field
         this.setParameters(aiParameters);
@@ -96,15 +88,12 @@ public class AICell extends Cell{
 
         HashMap<String, Float> parameters = this.getParameters();
 
-        float r_a = parameters.get("r_a");
-        float r_b = parameters.get("r_b");
-        float b_a = parameters.get("b_a");
-        float b_b = parameters.get("b_b");
-        float s = parameters.get("s");
+        float gamma = parameters.get("gamma");
+        
 
         // Calculating new concentrations 
-        float newA = A - r_a * A + s * ((A * A)/B + b_a);
-        float newB = B - r_b * B + s * A * A + b_b;
+        float newA = (1/16) * (16 - A * B);
+        float newB = (1/16) * (A * B - B - gamma);
 
         // Allocating array with new concentrations
         float[] newConcentrations = {newA, newB};
